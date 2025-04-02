@@ -2,7 +2,7 @@ import streamlit as st
 from streamlit_ketcher import st_ketcher
 # import streamlit.components.v1 as components
 from rdkit import Chem
-from rdkit.Chem import Draw, AllChem, DataStructs
+from rdkit.Chem import Draw, AllChem, DataStructs, rdFingerprintGenerator
 import pandas as pd
 import numpy as np
 
@@ -43,9 +43,11 @@ nbits = st.number_input("Fingerprint Bit Vector Size", min_value=512, max_value=
 def calculate_tanimoto(smiles1, smiles2, radius=default_radius, nbits=default_nbits):
     mol1 = Chem.MolFromSmiles(smiles1)
     mol2 = Chem.MolFromSmiles(smiles2)
+    morgan_generator = rdFingerprintGenerator.GetMorganGenerator(radius=radius, fpSize=nbits)
+
     if mol1 and mol2:
-        fp1 = AllChem.GetMorganFingerprintAsBitVect(mol1, radius, nBits=nbits)
-        fp2 = AllChem.GetMorganFingerprintAsBitVect(mol2, radius, nBits=nbits)
+        fp1 = morgan_generator.GetFingerprint(mol1)
+        fp2 = morgan_generator.GetFingerprint(mol2)
         similarity = DataStructs.TanimotoSimilarity(fp1, fp2)
         return similarity
     else:
