@@ -85,20 +85,28 @@ for drug_name, drug_smiles in drug_list:
 # Sort the drugs by similarity in descending order
 similarities.sort(key=lambda x: x[2], reverse=True)
 
-# Convert to a Pandas DataFrame for display
+# Convert the similarity data to a Pandas DataFrame
 df = pd.DataFrame(similarities, columns=["Drug Name", "SMILES", "Tanimoto Similarity"])
 
-# Display the DataFrame
-st.subheader("Similarity to Common Drugs")
-st.dataframe(df)
+# ------------------------------
+# Visualization using Streamlit's built-in functions (no seaborn/matplotlib)
+# ------------------------------
 
-# Visualization: Bar chart of similarity scores
-st.subheader("Tanimoto Similarity to Common Drugs")
-st.bar_chart(df.set_index("Drug Name")["Tanimoto Similarity"])
-
-# Display images of reference drug molecules
+# Display images of reference drug molecules first
 st.subheader("Chemical Structures of Reference Drugs")
 cols = st.columns(5)
 for idx, (name, img) in enumerate(drug_images):
     with cols[idx % 5]:  # Arrange images in rows of 5
-        st.image(img, caption=name, use_container_width=True)
+        st.image(img, caption=name, use_column_width=True)
+
+# Create a styled DataFrame with a background gradient to mimic a heatmap
+st.subheader("Tanimoto Similarity Heatmap")
+# Sort the DataFrame by similarity descending
+sorted_df = df.sort_values(by="Tanimoto Similarity", ascending=False).reset_index(drop=True)
+# Apply a background gradient to the "Tanimoto Similarity" column
+styled_df = sorted_df.style.background_gradient(cmap="coolwarm", subset=["Tanimoto Similarity"])
+st.write(styled_df)
+
+# Also display the raw similarity DataFrame for reference
+st.subheader("Similarity to Common Drugs (Raw Data)")
+st.dataframe(sorted_df)
