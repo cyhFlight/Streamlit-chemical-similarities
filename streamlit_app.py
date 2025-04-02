@@ -30,13 +30,8 @@ if molecule_str:
         st.error(f"Error: {e}")
 
 
-###################################
-# Compare two molecules
-
-# Input field for the second molecule's SMILES
-second_molecule_str = st.text_input("Input second molecule SMILES")
-
 # Adjustable parameters for fingerprint calculation
+st.title("Calculate Tanimoto similarities using Morgan Fingerprints")
 default_radius = 2
 default_nbits = 2048
 radius = st.number_input("Morgan Fingerprint Radius", min_value=1, max_value=5, value=default_radius)
@@ -54,17 +49,53 @@ def calculate_tanimoto(smiles1, smiles2, radius=default_radius, nbits=default_nb
     else:
         return None
 
-# Display the Tanimoto similarity between the two input molecules
-if molecule_str and second_molecule_str:
-    similarity = calculate_tanimoto(molecule_str, second_molecule_str, radius, nbits)
-    if similarity is not None:
-        st.markdown(f"Tanimoto similarity between the two molecules: **{similarity:.2f}**")
-    else:
-        st.error("Invalid SMILES input for one or both molecules.")
-
-
 
 ###############################
 # Compare with ten drug molecules
+# Predefined list of ten common small-molecule drugs with their names and SMILES
+drug_list = [
+    ("Aspirin", "CC(=O)OC1=CC=CC=C1C(=O)O"),
+    ("Caffeine", "CN1C=NC2=C1C(=O)N(C(=O)N2C)C"),
+    ("Ibuprofen", "CC(C)CC1=CC=C(C=C1)C(C)C(=O)O"),
+    ("Acetaminophen", "CC(=O)NC1=CC=C(O)C=C1"),
+    ("Penicillin V", "CC1(C)S[C@H](N2C=NC3=C2C(=O)NC(=O)N3)C(NC1=O)C(=O)O"),
+    ("Amoxicillin", "CC1(C)S[C@H](N2C=NC3=C2C(=O)NC(=O)N3)C(NC1=O)C(=O)OCCN"),
+    ("Metformin", "CNC(=N)NC(=N)NCCN"),
+    ("Lisinopril", "CC(C)C[C@H](NC(=O)[C@H](CC1=CC=CC=C1)NC(=O)[C@H](N)CC2=CC=CC=C2)C(=O)O"),
+    ("Atorvastatin", "CC(C)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)C[C@H](O)")
+]
 
+# Compute Tanimoto similarity for each reference drug and store in a list
+similarities = []
+drug_images = []
+
+for drug_name, drug_smiles in drug_list:
+    similarity = calculate_tanimoto(molecule_str, drug_smiles, radius, nbits)
+    if similarity is not None:
+        similarities.append((drug_name, drug_smiles, similarity))
+        mol = Chem.MolFromSmiles(drug_smiles)
+        if mol:
+            img = Draw.MolToImage(mol)
+            drug_images.append((drug_name, img))
+
+# Sort the drugs by similarity in descending order
+similarities.sort(key=lambda x: x[2], reverse=True)
+
+# Convert to a Pandas DataFrame for display
+df = pd.DataFrame(similarities, columns=["Drug Name", "SMILES", "Tanimoto Similarity"])
+
+# Display the DataFrame
+st.subheader("Similarity to Common Drugs")
+st.dataframe(df)
+
+# Visualization: Bar chart of similarity scores
+st.subheader("Tanimoto Similarity to Common Drugs")
+st.bar_chart(df.set_index("Drug Name")["Tanimoto Similarity"])
+
+# Display images of reference drug molecules
+st.subheader("Chemical Structures of Reference Drugs")
+cols = st.columns(5)
+for idx, (name, img) in enumerate(drug_images):
+    with cols[idx % 5]:  # Arrange images in rows of 5
+        st.image(img, caption=name, use_column_width=True)
 
