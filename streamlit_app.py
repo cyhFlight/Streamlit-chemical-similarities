@@ -1,5 +1,6 @@
 import streamlit as st
-import streamlit.components.v1 as components
+from streamlit_ketcher import st_ketcher
+# import streamlit.components.v1 as components
 from rdkit import Chem
 from rdkit.Chem import Draw
 
@@ -7,39 +8,11 @@ from rdkit.Chem import Draw
 st.title("Ketcher 分子编辑器")
 
 # Ketcher 的 HTML/JavaScript 嵌入
-ketcher_html = """
-<!DOCTYPE html>
-<html>
-<head>
-    <script src="https://unpkg.com/ketcher@latest/dist/ketcher.min.js"></script>
-    <style>
-        #ketcher-container {
-            width: 100%;
-            height: 400px;
-        }
-    </style>
-</head>
-<body>
-    <div id="ketcher-container"></div>
-    <button onclick="getSmiles()">获取 SMILES</button>
-    <input type="text" id="smilesOutput" readonly>
-    <script>
-        let ketcher = Ketcher.create('#ketcher-container');
-        function getSmiles() {
-            ketcher.getSmiles()
-                .then(smiles => {
-                    document.getElementById('smilesOutput').value = smiles;
-                    fetch('/?smiles=' + encodeURIComponent(smiles), {method: 'POST'});
-                })
-                .catch(error => console.error(error));
-        }
-    </script>
-</body>
-</html>
-"""
+## not working https://unpkg.com/ketcher@latest/dist/ketcher.min.js not found
 
-# 在 Streamlit 中渲染 Ketcher
-components.html(ketcher_html, height=500)
+molecule = st.text_input("Molecule", DEFAULT_MOL)
+smile_code = st_ketcher(molecule)
+st.markdown(f"Smile code: ``{smile_code}``")
 
 # 从 URL 参数获取 SMILES
 smiles = st.text_input("输入在 Ketcher 中创建的分子 SMILES:", "")
