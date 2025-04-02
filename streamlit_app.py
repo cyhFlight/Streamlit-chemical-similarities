@@ -3,6 +3,8 @@ from streamlit_ketcher import st_ketcher
 # import streamlit.components.v1 as components
 from rdkit import Chem
 from rdkit.Chem import Draw, AllChem, DataStructs
+import pandas as pd
+import numpy as np
 
 
 # UI parameters
