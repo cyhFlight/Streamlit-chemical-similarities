@@ -37,11 +37,13 @@ if molecule_str:
 second_molecule_str = st.text_input("Input second molecule SMILES")
 
 # Adjustable parameters for fingerprint calculation
+default_radius = 2
+default_nbits = 2048
 radius = st.number_input("Morgan Fingerprint Radius", min_value=1, max_value=5, value=default_radius)
 nbits = st.number_input("Fingerprint Bit Vector Size", min_value=512, max_value=4096, value=default_nbits, step=512)
 
 # Function to calculate Tanimoto similarity between two SMILES strings
-def calculate_tanimoto(smiles1, smiles2, radius=2, nbits=2048):
+def calculate_tanimoto(smiles1, smiles2, radius=default_radius, nbits=default_nbits):
     mol1 = Chem.MolFromSmiles(smiles1)
     mol2 = Chem.MolFromSmiles(smiles2)
     if mol1 and mol2:
