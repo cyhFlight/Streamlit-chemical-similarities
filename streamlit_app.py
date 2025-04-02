@@ -6,7 +6,7 @@ from rdkit.Chem import Draw
 
 
 # UI parameters
-ketcher_height = 800
+ketcher_height = 600
 st.set_page_config(layout="wide")
 st.title("Ketcher Molecule Editor")
 
@@ -26,6 +26,6 @@ if molecule_str:
     try:
         mol = Chem.MolFromSmiles(molecule_str)
         if mol:
-            st.image(Draw.MolToImage(mol), caption="Molecule structure", use_container_width=True)
+            st.image(Draw.MolToImage(mol), caption="Molecule structure", use_container_width=False)
     except Exception as e:
         st.error(f"Error: {e}")
