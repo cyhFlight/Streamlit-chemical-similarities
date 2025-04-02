@@ -2,7 +2,7 @@ import streamlit as st
 from streamlit_ketcher import st_ketcher
 # import streamlit.components.v1 as components
 from rdkit import Chem
-from rdkit.Chem import Draw
+from rdkit.Chem import Draw, AllChem, DataStructs
 
 
 # UI parameters
