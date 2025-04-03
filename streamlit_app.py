@@ -40,9 +40,9 @@ default_nbits = 2048
 
 col1, col2 = st.columns(2)
 with col1:
-    radius = st.number_input("Morgan Fingerprint Radius", min_value=1, max_value=5, value=default_radius)
+    mfp_radius = st.number_input("Morgan Fingerprint Radius", min_value=1, max_value=5, value=default_radius)
 with col2:
-    nbits = st.number_input("Fingerprint Bit Vector Size", min_value=512, max_value=4096, value=default_nbits, step=512)
+    mfp_nbits = st.number_input("Fingerprint Bit Vector Size", min_value=512, max_value=4096, value=default_nbits, step=512)
 
 # Function to calculate Tanimoto similarity between two SMILES strings
 def calculate_tanimoto(smiles1, smiles2, radius=default_radius, nbits=default_nbits):
@@ -58,12 +58,11 @@ def calculate_tanimoto(smiles1, smiles2, radius=default_radius, nbits=default_nb
     else:
         return None
 
-
 ###############################
 # Compare with ten drug molecules
 # Predefined list of ten common small-molecule drugs with their names and SMILES
 
-drug_list = [
+drug_list_10 = [
     ("Aspirin", "CC(=O)OC1=CC=CC=C1C(=O)O"),
     ("Caffeine", "CN1C=NC2=C1C(=O)N(C(=O)N2C)C"),
     ("Ibuprofen", "CC(C)CC1=CC=C(C=C1)C(C)C(=O)O"),
@@ -77,40 +76,44 @@ drug_list = [
 ]
 
 # Compute Tanimoto similarity for each reference drug and store in a list
-similarities = []
-drug_images = []
+def calculate_tanimoto_from_list(molecule_str, drug_list, radius=default_radius, nbits=default_nbits):
+    similarities = []
+    drug_images = []
+    for drug_name, drug_smiles in drug_list:
+        similarity = calculate_tanimoto(molecule_str, drug_smiles, radius, nbits)
+        if similarity is not None:
+            similarities.append((drug_name, drug_smiles, similarity))
+            mol = Chem.MolFromSmiles(drug_smiles)
+            if mol:
+                img = Draw.MolToImage(mol)
+                drug_images.append((drug_name, img))
 
-for drug_name, drug_smiles in drug_list:
-    similarity = calculate_tanimoto(molecule_str, drug_smiles, radius, nbits)
-    if similarity is not None:
-        similarities.append((drug_name, drug_smiles, similarity))
-        mol = Chem.MolFromSmiles(drug_smiles)
-        if mol:
-            img = Draw.MolToImage(mol)
-            drug_images.append((drug_name, img))
+    # Sort the drugs by similarity in descending order
+    similarities.sort(key=lambda x: x[2], reverse=True)
+    # Convert the similarity data to a Pandas DataFrame
+    df = pd.DataFrame(similarities, columns=["Drug Name", "SMILES", "Tanimoto Similarity"])
+    # Sort the DataFrame by similarity descending
+    sorted_df = df.sort_values(by="Tanimoto Similarity", ascending=False).reset_index(drop=True)
+    # Apply a background gradient to the "Tanimoto Similarity" column to mimic a heatmap
+    styled_df = sorted_df.style.background_gradient(cmap="coolwarm", subset=["Tanimoto Similarity"])
 
-# Sort the drugs by similarity in descending order
-similarities.sort(key=lambda x: x[2], reverse=True)
-
-# Convert the similarity data to a Pandas DataFrame
-df = pd.DataFrame(similarities, columns=["Drug Name", "SMILES", "Tanimoto Similarity"])
-
-# ------------------------------
-# Visualization using Streamlit's built-in functions (no seaborn/matplotlib)
-# ------------------------------
+    return styled_df
 
 # Display images of reference drug molecules first
 st.subheader("Chemical Structures of Reference Drugs")
 cols = st.columns(5)
+drug_images = []
+for drug_name, drug_smiles in drug_list_10:
+    mol = Chem.MolFromSmiles(drug_smiles)
+    if mol:
+        img = Draw.MolToImage(mol)
+        drug_images.append((drug_name, img))
 for idx, (name, img) in enumerate(drug_images):
     with cols[idx % 5]:  # Arrange images in rows of 5
         st.image(img, caption=name, use_container_width=False)
 
-# Create a styled DataFrame with a background gradient to mimic a heatmap
 st.subheader("Tanimoto Similarity to Common Drugs")
-# Sort the DataFrame by similarity descending
-sorted_df = df.sort_values(by="Tanimoto Similarity", ascending=False).reset_index(drop=True)
-# Apply a background gradient to the "Tanimoto Similarity" column
-styled_df = sorted_df.style.background_gradient(cmap="coolwarm", subset=["Tanimoto Similarity"])
-st.write(styled_df)
 
+if st.button('Calculate', type='primary'):
+    styled_df = calculate_tanimoto_from_list(molecule_str, drug_list=drug_list_10, radius=mfp_radius, nbits=mfp_nbits)
+    st.write(styled_df)
