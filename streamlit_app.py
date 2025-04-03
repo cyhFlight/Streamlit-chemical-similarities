@@ -31,13 +31,18 @@ if molecule_str:
     except Exception as e:
         st.error(f"Error: {e}")
 
+st.divider()
 
 # Adjustable parameters for fingerprint calculation
 st.title("Calculate Tanimoto similarities using Morgan Fingerprints")
 default_radius = 2
 default_nbits = 2048
-radius = st.number_input("Morgan Fingerprint Radius", min_value=1, max_value=5, value=default_radius)
-nbits = st.number_input("Fingerprint Bit Vector Size", min_value=512, max_value=4096, value=default_nbits, step=512)
+
+col1, col2 = st.columns(2)
+with col1:
+    radius = st.number_input("Morgan Fingerprint Radius", min_value=1, max_value=5, value=default_radius)
+with col2:
+    nbits = st.number_input("Fingerprint Bit Vector Size", min_value=512, max_value=4096, value=default_nbits, step=512)
 
 # Function to calculate Tanimoto similarity between two SMILES strings
 def calculate_tanimoto(smiles1, smiles2, radius=default_radius, nbits=default_nbits):
