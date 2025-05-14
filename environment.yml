@@ -1,0 +1,16 @@
+name: aest
+
+dependencies:
+  - python=3.10                # see rationale above
+  - numpy                      # matches python >=3.10
+  - pandas
+  - pyarrow
+  - matplotlib
+  - plotly
+  - pillow
+  - streamlit
+  - rdkit
+  - pip
+  - pip:
+      - streamlit-ketcher      # only available via pip
+      - py3Dmol==2.0.0.post2   # pinned for compatibility
