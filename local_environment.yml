@@ -10,6 +10,7 @@ dependencies:
   - pillow
   - streamlit
   - rdkit
+  - mols2grid
   - pip
   - pip:
       - streamlit-ketcher      # only available via pip

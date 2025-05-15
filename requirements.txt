@@ -7,5 +7,6 @@ pillow
 streamlit
 rdkit
 streamlit-ketcher
+mols2grid
 # due to changes of py3Dmol, we need to install a specific version:
 py3Dmol==2.0.0.post2

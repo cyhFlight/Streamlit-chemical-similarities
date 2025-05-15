@@ -1,9 +1,11 @@
 # streamlit_app.py
+import mols2grid
 import streamlit as st
+import pandas as pd
 from streamlit_ketcher import st_ketcher
 from rdkit import Chem
 from rdkit.Chem import Draw
-from utils import calculate_tanimoto_from_list, drug_list_10
+from utils import calculate_tanimoto_from_list, compute_top_similarities, drug_list_10
 
 # UI parameters
 ketcher_height = 500
@@ -21,6 +23,7 @@ if 'text_input' not in st.session_state:
 
 def draw_mol():
     st.session_state.smiles = st.session_state.text_input
+    st.markdown("Your quest molecule:")
     st.markdown(f"SMILES code: ``{st.session_state.smiles}``")
     # RDKit molecule drawing
     try:
@@ -41,11 +44,19 @@ st.markdown("Click :blue-background[Apply] to apply the molecule you draw")
 if st.button("Confirm Molecule", type="primary"):
     draw_mol()
 
+# Load FDA drugs data from csv
 st.divider()
+st.title("Load FDA approved drugs")
+df_fda = pd.read_csv("data/FDA_drugs_smiles.csv")
+st.markdown("The dimension of the loaded data frame is:")
+st.write(df_fda.shape)
+st.write(df_fda)
 
+st.divider()
 # Adjustable parameters for fingerprint calculation
 default_radius = 2
 default_nbits = 2048
+top_n_to_show = 12
 st.title("Calculate Tanimoto similarities using Morgan Fingerprints")
 
 col1, col2 = st.columns(2)
@@ -54,8 +65,23 @@ with col1:
 with col2:
     mfp_nbits = st.number_input("Fingerprint Bit Vector Size", min_value=512, max_value=4096, value=default_nbits, step=512)
 
+# Show quest molecule again for easy comparison
+draw_mol()
+st.subheader("Tanimoto Similarity to FDA Approved Drugs")
+if st.button('Search Similar FDA Approved Drugs', type="primary"):
+    top_sim_df = compute_top_similarities(st.session_state.smiles, df_fda, radius=mfp_radius, nbits=mfp_nbits, top_n=top_n_to_show)
+    st.subheader("Top 10 Most Similar FDA Drugs")
+    st.dataframe(top_sim_df.style.background_gradient(cmap="coolwarm", subset=["Similarity"])) # with background gradient
+
+    raw_html = mols2grid.display(top_sim_df,
+                            subset=["img", "Drug Name"],
+                            mapping={"SMILES": "SMILES", "Drug Name": "Name"})._repr_html_()
+    st.components.v1.html(raw_html, width=1200, height=500, scrolling=False)
+
+
+#### The below is just demo
 # Display images of reference drug molecules
-st.subheader("Chemical Structures of Reference Drugs")
+st.subheader("Chemical Structures of 10 Reference Drugs")
 cols = st.columns(5)
 drug_images = []
 for drug_name, drug_smiles in drug_list_10:

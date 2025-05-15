@@ -26,6 +26,15 @@ def calculate_tanimoto_from_list(molecule_str, drug_list, radius=2, nbits=2048):
     styled_df = df.style.background_gradient(cmap="coolwarm", subset=["Tanimoto Similarity"])
     return styled_df
 
+def compute_top_similarities(query_smiles, df, radius=2, nbits=2048, top_n=10):
+    results = []
+    for _, row in df.iterrows():
+        sim = calculate_tanimoto(query_smiles, row['smiles'], radius, nbits)
+        if sim is not None:
+            results.append((sim, row['substance'], row['smiles'], row['class1'], row['class3']))
+    results.sort(key=lambda x: x[0], reverse=True)
+    return pd.DataFrame(results[:top_n], columns=["Similarity", "Drug Name", "SMILES", "Class 1", "Class 3"])
+
 drug_list_10 = [
     ("Aspirin", "CC(=O)OC1=CC=CC=C1C(=O)O"),
     ("Caffeine", "CN1C=NC2=C1C(=O)N(C(=O)N2C)C"),
