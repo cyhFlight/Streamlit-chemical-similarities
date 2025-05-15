@@ -18,10 +18,6 @@ if 'smiles' not in st.session_state:
     st.session_state.smiles = default_mol
 if 'text_input' not in st.session_state:
     st.session_state.text_input = default_mol
-# if 'ketcher' not in st.session_state:
-#     st.session_state.ketcher = default_mol
-# if 'mol' not in st.session_state:
-#     st.session_state.mol = default_mol
 
 def draw_mol():
     st.session_state.smiles = st.session_state.text_input
@@ -35,16 +31,14 @@ def draw_mol():
         st.error(f"Error: {e}")
 
 # Text input box
-st.session_state.text_input = st.text_input("Input molecule SMILES", st.session_state.smiles)
+st.session_state.text_input = st.text_input("Input molecule SMILES", st.session_state.text_input)
 
 # Ketcher editor
-ketcher_mol = st_ketcher(st.session_state.text_input, height=ketcher_height)
+st.session_state.text_input = st_ketcher(st.session_state.text_input, height=ketcher_height)
 
 # Sync mol smiles
 st.markdown("Click :blue-background[Apply] to apply the molecule you draw")
 if st.button("Confirm Molecule", type="primary"):
-    if ketcher_mol != st.session_state.text_input:
-        st.session_state.text_input = ketcher_mol
     draw_mol()
 
 st.divider()
@@ -75,7 +69,7 @@ for idx, (name, img) in enumerate(drug_images):
 
 # Tanimoto similarity table
 st.subheader("Tanimoto Similarity to Common Drugs")
-if st.button('Calculate Similarity'):
+if st.button('Calculate Similarity', type="primary"):
     styled_df = calculate_tanimoto_from_list(
         st.session_state.smiles, drug_list=drug_list_10,
         radius=mfp_radius, nbits=mfp_nbits
