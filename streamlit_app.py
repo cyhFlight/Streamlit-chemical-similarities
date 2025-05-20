@@ -56,7 +56,6 @@ st.divider()
 # Adjustable parameters for fingerprint calculation
 default_radius = 2
 default_nbits = 2048
-top_n_to_show = 12
 st.title("Calculate Tanimoto similarities using Morgan Fingerprints")
 
 col1, col2 = st.columns(2)
@@ -67,37 +66,37 @@ with col2:
 
 # Show quest molecule again for easy comparison
 draw_mol()
-st.subheader("Tanimoto Similarity to FDA Approved Drugs")
+# st.subheader("Tanimoto Similarity to FDA Approved Drugs")
 if st.button('Search Similar FDA Approved Drugs', type="primary"):
-    top_sim_df = compute_top_similarities(st.session_state.smiles, df_fda, radius=mfp_radius, nbits=mfp_nbits, top_n=top_n_to_show)
-    st.subheader("Top 10 Most Similar FDA Drugs")
+    top_sim_df = compute_top_similarities(st.session_state.smiles, df_fda, radius=mfp_radius, nbits=mfp_nbits)
+    st.subheader("FDA Approved Drugs Sorted by Similarity")
     st.dataframe(top_sim_df.style.background_gradient(cmap="coolwarm", subset=["Similarity"])) # with background gradient
 
     raw_html = mols2grid.display(top_sim_df,
                             subset=["img", "Drug Name"],
                             mapping={"SMILES": "SMILES", "Drug Name": "Name"})._repr_html_()
-    st.components.v1.html(raw_html, width=1200, height=500, scrolling=False)
+    st.components.v1.html(raw_html, width=1200, height=650, scrolling=False)
 
 
-#### The below is just demo
+#### The below is just demo, in expander format
 # Display images of reference drug molecules
-st.subheader("Chemical Structures of 10 Reference Drugs")
-cols = st.columns(5)
-drug_images = []
-for drug_name, drug_smiles in drug_list_10:
-    mol = Chem.MolFromSmiles(drug_smiles)
-    if mol:
-        img = Draw.MolToImage(mol)
-        drug_images.append((drug_name, img))
-for idx, (name, img) in enumerate(drug_images):
-    with cols[idx % 5]:
-        st.image(img, caption=name, use_container_width=False)
+with st.expander("Chemical Structures of 10 Reference Drugs (Deprecated)"):
+    cols = st.columns(5)
+    drug_images = []
+    for drug_name, drug_smiles in drug_list_10:
+        mol = Chem.MolFromSmiles(drug_smiles)
+        if mol:
+            img = Draw.MolToImage(mol)
+            drug_images.append((drug_name, img))
+    for idx, (name, img) in enumerate(drug_images):
+        with cols[idx % 5]:
+            st.image(img, caption=name, use_container_width=False)
 
-# Tanimoto similarity table
-st.subheader("Tanimoto Similarity to Common Drugs")
-if st.button('Calculate Similarity', type="primary"):
-    styled_df = calculate_tanimoto_from_list(
-        st.session_state.smiles, drug_list=drug_list_10,
-        radius=mfp_radius, nbits=mfp_nbits
-    )
-    st.write(styled_df)
+    # Tanimoto similarity table
+    st.subheader("Tanimoto Similarity to Common Drugs")
+    if st.button('Calculate Similarity', type="primary"):
+        styled_df = calculate_tanimoto_from_list(
+            st.session_state.smiles, drug_list=drug_list_10,
+            radius=mfp_radius, nbits=mfp_nbits
+        )
+        st.write(styled_df)
